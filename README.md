@@ -3,11 +3,11 @@
 
 ## Getting started
 
-`$ npm install react-native-payfort --save`
+~~`$ npm install react-native-payfort --save`~~
 
 ### Mostly automatic installation
 
-`$ react-native link react-native-payfort`
+~~`$ react-native link react-native-payfort`~~
 
 ### Manual installation
 
