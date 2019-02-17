@@ -9,10 +9,9 @@
 import * as React from "react";
 import { NativeModules } from 'react-native';
 
-// module.exports = NativeModules.RNPayfort
 
-export class TestTest {
-	public static startPayment(amount : Number, email : String) {
-		 NativeModules.RNPayfort.initializePayment(amount, email);
+export class PayFort {
+	public static initializePayment(amount: Number, email: String, language: "en" | "ar", merchant_id: String, accesscode: String, requestphrase: String, responsephrase: String, currencytype: String, callBack : (code : Number, message : String) => Function ) {
+		NativeModules.RNPayfort.initializePayment(amount, email, language, merchant_id, accesscode, requestphrase, responsephrase, currencytype, callBack);
 	}
 }

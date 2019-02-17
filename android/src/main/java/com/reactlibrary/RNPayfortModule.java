@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.telecom.Call;
 import android.util.Log;
+import android.util.Patterns;
 import android.widget.Toast;
 
 import com.facebook.react.bridge.ActivityEventListener;
@@ -22,18 +24,16 @@ public class RNPayfortModule extends ReactContextBaseJavaModule implements IPaym
 
     public FortCallBackManager fortCallback = null;
 
+    public Callback callback = null;
+
   private final ReactApplicationContext reactContext;
 
-
-
-
-
+  private boolean valid = false;
 
     private final ActivityEventListener mActivityEventListener = new BaseActivityEventListener() {
 
         @Override
         public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-            Log.d("itworks", "it works "+requestCode+" "+resultCode+" "+data);
             super.onActivityResult(activity, requestCode, resultCode, data);
             if (requestCode == PayFortPayment.RESPONSE_PURCHASE) {
                 fortCallback.onActivityResult(requestCode, resultCode, data);
@@ -54,47 +54,68 @@ public class RNPayfortModule extends ReactContextBaseJavaModule implements IPaym
 
 
   @ReactMethod
-  public void initializePayment(Float amount, String email) {
-      Toast.makeText(getReactApplicationContext(), "data from app is "+amount+" email is "+email, Toast.LENGTH_LONG).show();
-      fortCallback = FortCallback.Factory.create();
-      // requestForPayfortPayment(22.00);
+  public void initializePayment(Double amount, String email, String language, String merchant_id, String accesscode, String requestphrase, String responsephrase, String currencytype, Callback success) {
+      callback = success;
+      Log.e("errordata", "amount "+amount+" email "+email+" lang "+language+" merchid "+merchant_id+" access "+accesscode+" req "+requestphrase+" res "+responsephrase+" curr "+currencytype);
+      if(amount instanceof Double && amount != null) {
+          if(email instanceof String && email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+              if(language.equals("en") || language.equals("ar")) {
+                  if(merchant_id instanceof String && merchant_id != null) {
+                      if(accesscode instanceof String && accesscode != null) {
+                          if(requestphrase instanceof String && requestphrase != null) {
+                              if(responsephrase instanceof String && responsephrase != null) {
+                                  if(currencytype instanceof String && currencytype.length() == 3) {
+                                      valid = true;
+                                  } else {invokeCallBack(0, "INVALID_CURRENCY_CODE");}
+                              } else {invokeCallBack(0, "INVALID_RESPONSE_PHRASE");}
+                          } else {invokeCallBack(0, "INVALID_REQUEST_PHRASE");}
+                      } else {invokeCallBack(0, "INVALID_ACCESSCODE");}
+                  } else {invokeCallBack(0, "INVALID_MERCHANT_ID");}
+              } else {invokeCallBack(0, "INVALID_LANGUAGE");}
+          } else {invokeCallBack(0, "INVALID_EMAIL");}
+      } else {
+          invokeCallBack(0, "INVALID_AMOUNT");
+      }
+      if(valid) {
+          fortCallback = FortCallback.Factory.create();
+          requestForPayfortPayment(amount, email, language, merchant_id, accesscode, requestphrase, responsephrase, currencytype);
+      }
   }
 
-    private void requestForPayfortPayment(Double etAmount) {
+  private void invokeCallBack(Integer code, String message) {
+      callback.invoke(code, message);
+  }
+
+    private void requestForPayfortPayment(Double amount, String email, String language, String merchant_id, String accesscode, String requestphrase, String responsephrase, String currencytype) {
         PayFortData payFortData = new PayFortData();
-            payFortData.amount = String.valueOf((int) (etAmount* 100));// Multiplying with 100, bcz amount should not be in decimal format
+            payFortData.amount = String.valueOf((int) (amount* 100));// Multiplying with 100, bcz amount should not be in decimal format
             payFortData.command = PayFortPayment.PURCHASE;
-            payFortData.currency = PayFortPayment.CURRENCY_TYPE;
-            payFortData.customerEmail = "readyandm@ggg.cc";
-            payFortData.language = PayFortPayment.LANGUAGE_TYPE;
+            payFortData.currency = currencytype;
+            payFortData.customerEmail = email;
+            payFortData.language = language;
             payFortData.merchantReference = String.valueOf(System.currentTimeMillis());
 
-            Log.d("reactContext", "reactContext74 "+reactContext.getCurrentActivity());
-
             PayFortPayment payFortPayment = new PayFortPayment(reactContext.getCurrentActivity(), this.fortCallback, this);
+            payFortPayment.setCredentials(merchant_id, accesscode, requestphrase, responsephrase, currencytype, language);
             payFortPayment.requestForPayment(payFortData);
         }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-      Log.d("second","second time");
-    }
 
     @Override
     public void onPaymentRequestResponse(int responseType, PayFortData responseData) {
-      Log.d("resp1","resp1 "+responseData);
+//      callback.invoke("Response from module");
         if (responseType == PayFortPayment.RESPONSE_GET_TOKEN) {
             Toast.makeText(getReactApplicationContext(), "Token not generated", Toast.LENGTH_SHORT).show();
-            Log.e("onPaymentResponse", "Token not generated");
+            callback.invoke(responseType, "Token not generated");
         } else if (responseType == PayFortPayment.RESPONSE_PURCHASE_CANCEL) {
             Toast.makeText(getReactApplicationContext(), "Payment cancelled", Toast.LENGTH_SHORT).show();
-            Log.e("onPaymentResponse", "Payment cancelled");
+            callback.invoke(responseType, "Payment cancelled");
         } else if (responseType == PayFortPayment.RESPONSE_PURCHASE_FAILURE) {
             Toast.makeText(getReactApplicationContext(), "Payment failed", Toast.LENGTH_SHORT).show();
-            Log.e("onPaymentResponse", "Payment failed");
+            callback.invoke(responseType, "Payment Failed");
         } else {
             Toast.makeText(getReactApplicationContext(), "Payment successful", Toast.LENGTH_SHORT).show();
-            Log.e("onPaymentResponse", "Payment successful");
+            callback.invoke(responseType, "Payment Successful");
         }
 
     }

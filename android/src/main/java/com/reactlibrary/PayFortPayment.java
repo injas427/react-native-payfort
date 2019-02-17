@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
-import android.app.ProgressDialog;
 
 import com.google.gson.Gson;
 import com.payfort.fort.android.sdk.base.FortSdk;
@@ -57,13 +56,13 @@ public class PayFortPayment {
     private final static String WS_GET_TOKEN = TEST_TOKEN_URL;
 
     //Statics
-    private final static String MERCHANT_IDENTIFIER = "";//;
-    private final static String ACCESS_CODE = "";//;
+    private String MERCHANT_IDENTIFIER = "";//;
+    private String ACCESS_CODE = "";//;
     private final static String SHA_TYPE = "SHA-256";
-    private final static String SHA_REQUEST_PHRASE = "";
-    public final static String SHA_RESPONSE_PHRASE = "";
-    public final static String CURRENCY_TYPE = "QAR";
-    public final static String LANGUAGE_TYPE = "en";//Arabic - ar //English - en
+    private String SHA_REQUEST_PHRASE = "";
+    public String SHA_RESPONSE_PHRASE = "";
+    public String CURRENCY_TYPE = "QAR";
+    public String LANGUAGE_TYPE = "en";//Arabic - ar //English - en
 
     private final Gson gson;
     private Activity context;
@@ -74,21 +73,23 @@ public class PayFortPayment {
 
     private boolean showSpinner = false;
 
-    private ProgressDialog progressDialog;
-
 
     public PayFortPayment(Activity context,FortCallBackManager fortCallback,IPaymentRequestCallBack iPaymentRequestCallBack) {
         this.context = context;
         this.fortCallback = fortCallback;
         this.iPaymentRequestCallBack = iPaymentRequestCallBack;
 
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("Processing your payment\nPlease wait...");
-        progressDialog.setCancelable(false);
-
-
         sdkToken = "";
         gson = new Gson();
+    }
+
+    public void setCredentials(String merchantid, String access_code, String request_phrase, String response_phrase, String currency, String language) {
+        MERCHANT_IDENTIFIER = merchantid;
+        ACCESS_CODE = access_code;
+        SHA_REQUEST_PHRASE = request_phrase;
+        SHA_RESPONSE_PHRASE = response_phrase;
+        CURRENCY_TYPE = currency;
+        LANGUAGE_TYPE = language;
     }
 
     public void requestForPayment(PayFortData payFortData) {
@@ -101,11 +102,9 @@ public class PayFortPayment {
             FortSdk.getInstance().registerCallback(context, getPurchaseFortRequest(), FortSdk.ENVIRONMENT.TEST, RESPONSE_PURCHASE, fortCallback, showSpinner, new FortInterfaces.OnTnxProcessed() {
                 @Override
                 public void onCancel(Map<String, Object> map, Map<String, Object> map1) {
-                    Log.d("g", "f");
                     JSONObject response = new JSONObject(map1);
                     PayFortData payFortData = gson.fromJson(response.toString(), PayFortData.class);
                     payFortData.paymentResponse = response.toString();
-                    Log.e("Cancel Response", response.toString());
                     if (iPaymentRequestCallBack != null) {
                         iPaymentRequestCallBack.onPaymentRequestResponse(RESPONSE_PURCHASE_CANCEL, payFortData);
                     }
@@ -113,11 +112,9 @@ public class PayFortPayment {
 
                 @Override
                 public void onSuccess(Map<String, Object> map, Map<String, Object> map1) {
-                    Log.d("g", "f");
                     JSONObject response = new JSONObject(map1);
                     PayFortData payFortData = gson.fromJson(response.toString(), PayFortData.class);
                     payFortData.paymentResponse = response.toString();
-                    Log.e("Success Response", response.toString());
                     if (iPaymentRequestCallBack != null) {
                         iPaymentRequestCallBack.onPaymentRequestResponse(RESPONSE_PURCHASE_SUCCESS, payFortData);
                     }
@@ -125,11 +122,9 @@ public class PayFortPayment {
 
                 @Override
                 public void onFailure(Map<String, Object> map, Map<String, Object> map1) {
-                    Log.d("g", "f");
                     JSONObject response = new JSONObject(map1);
                     PayFortData payFortData = gson.fromJson(response.toString(), PayFortData.class);
                     payFortData.paymentResponse = response.toString();
-                    Log.e("Failure Response", response.toString());
                     if (iPaymentRequestCallBack != null) {
                         iPaymentRequestCallBack.onPaymentRequestResponse(RESPONSE_PURCHASE_FAILURE, payFortData);
                     }
@@ -137,7 +132,6 @@ public class PayFortPayment {
             });
 
         } catch (Exception e) {
-            Log.d("ee", e.getMessage()+" 146");
             e.printStackTrace();
         }
     }
