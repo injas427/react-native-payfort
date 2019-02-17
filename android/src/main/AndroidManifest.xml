@@ -1,0 +1,36 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.reactlibrary">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+
+    <application android:supportsRtl="true"
+        android:allowBackup="false"
+        tools:replace="android:allowBackup"
+        >
+        <activity
+            android:name="com.payfort.fort.android.sdk.activities.InitSecureConnectionActivity"
+            android:configChanges="locale|orientation|screenSize"
+            android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name="com.payfort.fort.android.sdk.activities.CreditCardPaymentActivity"
+            android:configChanges="locale"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name="com.payfort.fort.android.sdk.activities.CreditCardResponseActivity"
+            android:configChanges="locale"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
+</manifest>
+  

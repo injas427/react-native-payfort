@@ -1,0 +1,88 @@
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    defaultConfig {
+        minSdkVersion safeExtGet('minSdkVersion', 21)
+        targetSdkVersion safeExtGet('targetSdkVersion', 28)
+
+        versionCode 1
+        versionName "1.0.0"
+
+    }
+    lintOptions {
+        abortOnError false
+//        warning 'InvalidPackage'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+    }
+
+
+}
+
+repositories {
+    google()
+    maven {
+        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+        url "$rootDir/../node_modules/react-native/android"
+    }
+    maven { url 'https://maven.google.com' }
+    jcenter()
+}
+
+dependencies {
+    compileOnly "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
+    implementation  'com.android.support:multidex:1.0.3'
+
+//    api fil(path: ':FORTSDKv1.5')
+    api fileTree(dir: "FORTSDKv1.5", include: ["*.aar"])
+//    api fileTree(dir: "libs", include: ["*.jar"])
+    api "com.android.support:support-annotations:28.0.0"
+//    implementation  ("com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"){
+//        transitive = true
+//    }
+
+    implementation  ("com.android.support:appcompat-v7:28.0.0"){
+        transitive = true
+    }
+    api 'com.victor:lib:1.0.1'
+    api 'com.google.code.gson:gson:2.8.2'
+
+    api 'com.shamanland:fonticon:0.1.9'
+
+    api('com.nispok:snackbar:2.11.+') {
+        // exclusion is not necessary, but generally a good idea.
+        exclude group: 'com.google.android', module: 'support-v13'
+    }
+    api 'com.android.support:support-v4:28.0.0'
+
+    api 'com.google.guava:guava:27.0.1-android'
+    api 'org.bouncycastle:bcprov-jdk16:1.46'
+    api 'commons-codec:commons-codec:1.10'
+    implementation "com.android.support:design:28.0.0"
+
+}
+  
