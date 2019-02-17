@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: enhancement, help wanted, good first issue, question
+labels: enhancement, good first issue, help wanted, question
 assignees: injas427
 
 ---
