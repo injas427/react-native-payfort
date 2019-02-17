@@ -35,6 +35,9 @@
   	```
 
 ## Usage
+
+**This library is in beta state**
+
 ```javascript
 import {PayFort} from 'react-native-payfort';
 
