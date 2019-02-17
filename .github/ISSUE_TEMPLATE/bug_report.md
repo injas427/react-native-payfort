@@ -7,8 +7,8 @@ assignees: injas427
 
 ---
 
-**Is this a bug?**
-Yes/No
+**Is this a bug or feature request?**
+
 
 **Describe the bug**
 A clear and concise description of what the bug is.
