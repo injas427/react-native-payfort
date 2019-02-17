@@ -36,9 +36,7 @@
 
 ## Usage
 ```javascript
-import RNPayfort from 'react-native-payfort';
+import {PayFort} from 'react-native-payfort';
 
 // TODO: What to do with the module?
-RNPayfort;
-```
-  
+PayFort.initializePayment(amount, email)  
